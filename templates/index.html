@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Neural HCI Console</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+  </head>
+  <body>
+    <div class="noise"></div>
+    <main class="frame">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Adaptive AI Interface</p>
+          <h1>Neural HCI Console</h1>
+          <p class="subhead">
+            A voice-driven, emotion-aware web interface that listens, interprets, and
+            reshapes the experience in real time.
+          </p>
+        </div>
+        <div class="status-card">
+          <p class="status-label">System Status</p>
+          <p class="status-value" id="statusValue">Idle</p>
+          <div class="pulse"></div>
+        </div>
+      </header>
+
+      <section class="grid">
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Voice Input</h2>
+            <span class="tag">Speech Recognition</span>
+          </div>
+          <p class="panel-copy">
+            Use your voice or type a phrase. The interface transcribes your signal and
+            routes it to the emotion model.
+          </p>
+          <div class="input-row">
+            <button id="micButton" class="primary">Activate Mic</button>
+            <button id="stopButton" class="ghost" disabled>Stop</button>
+          </div>
+          <textarea
+            id="textInput"
+            placeholder="Speak or type here..."
+            rows="4"
+          ></textarea>
+          <button id="analyzeButton" class="secondary">Analyze Signal</button>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Emotion Lens</h2>
+            <span class="tag">AI Inference</span>
+          </div>
+          <div class="emotion-summary">
+            <p class="emotion-label">Detected State</p>
+            <h3 id="emotionLabel">Neutral</h3>
+            <div id="emotionBars" class="bars"></div>
+          </div>
+        </div>
+
+        <div class="panel wide">
+          <div class="panel-header">
+            <h2>Signal Dashboard</h2>
+            <span class="tag">Live Telemetry</span>
+          </div>
+          <p class="panel-copy">
+            Track recent detections and confidence spikes. This replaces the visual-only
+            morphology panel with practical session insights.
+          </p>
+          <div class="dashboard">
+            <div class="telemetry">
+              <p class="emotion-label">Recent Signals</p>
+              <div id="history" class="history"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="/static/js/app.js"></script>
+  </body>
+</html>
