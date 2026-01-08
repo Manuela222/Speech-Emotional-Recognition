@@ -136,23 +136,38 @@ def analyze() -> tuple:
     if not text:
         return jsonify({"error": "No text provided."}), 400
 
-    label, scores = MODEL.predict(text)
-    response = generate_ai_response(label, text)
-    return jsonify({"label": label, "scores": scores, "response": response})
+    text_label, text_scores = MODEL.predict(text)
+    face_scores = payload.get("face_scores") or {}
+    face_label = None
+    if isinstance(face_scores, dict) and face_scores:
+        face_label = max(face_scores, key=face_scores.get)
+    fused_scores = fuse_scores(text_scores, face_scores)
+    fused_label = max(fused_scores, key=fused_scores.get)
+
+    return jsonify(
+        {
+            "text_label": text_label,
+            "text_scores": text_scores,
+            "face_label": face_label,
+            "face_scores": face_scores,
+            "fused_label": fused_label,
+            "fused_scores": fused_scores,
+        }
+    )
 
 
-def generate_ai_response(label: str, text: str) -> str:
-    presets = {
-        "joy": "Your energy reads bright. Want to channel it into a bold next step?",
-        "sadness": "I am picking up a softer signal. Want a calmer, focused flow?",
-        "anger": "The signal is intense. We can switch to a sharper, minimal layout.",
-        "fear": "I sense caution. I can slow the pace and highlight safe options.",
-        "surprise": "That is a spike of surprise. Want a quick discovery mode?",
-        "neutral": "Signal is balanced. We can keep the interface steady and precise.",
-    }
-    base = presets.get(label, presets["neutral"])
-    trimmed = text[:120]
-    return f"{base} \"{trimmed}\""
+def fuse_scores(
+    text_scores: Dict[str, float], face_scores: Dict[str, float]
+) -> Dict[str, float]:
+    weights = {"text": 0.6, "face": 0.4}
+    fused = {}
+    for label in text_scores:
+        text_value = text_scores.get(label, 0.0)
+        face_value = 0.0
+        if isinstance(face_scores, dict):
+            face_value = float(face_scores.get(label, 0.0))
+        fused[label] = round(text_value * weights["text"] + face_value * weights["face"], 4)
+    return fused
 
 
 if __name__ == "__main__":

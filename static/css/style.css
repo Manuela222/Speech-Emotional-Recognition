@@ -157,6 +157,59 @@ h1 {
   flex-wrap: wrap;
 }
 
+.video-frame {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(130, 157, 255, 0.3);
+  background: rgba(4, 8, 20, 0.6);
+  min-height: 180px;
+}
+
+.video-frame video {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+  filter: saturate(1.1) contrast(1.05);
+}
+
+.video-overlay {
+  position: absolute;
+  inset: auto 12px 12px 12px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(5, 10, 24, 0.7);
+  color: var(--muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.face-state h3 {
+  font-size: 1.8rem;
+  margin-top: 6px;
+}
+
+.fusion-meta {
+  margin-top: auto;
+  display: grid;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.fusion-meta span {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.65rem;
+}
+
+.fusion-meta strong {
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
 textarea {
   background: rgba(4, 8, 20, 0.6);
   border: 1px solid rgba(130, 157, 255, 0.3);

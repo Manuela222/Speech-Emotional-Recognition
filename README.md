@@ -17,3 +17,4 @@ Open http://127.0.0.1:5000 in a browser.
 
 - Speech recognition uses the browser Web Speech API; it works best in Chromium-based browsers.
 - Emotion detection runs locally in Python using a lightweight naive Bayes model.
+- Facial emotion uses `face-api.js` via CDN; the browser will request camera access.

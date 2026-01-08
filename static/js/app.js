@@ -4,11 +4,24 @@ const analyzeButton = document.getElementById("analyzeButton");
 const textInput = document.getElementById("textInput");
 const emotionLabel = document.getElementById("emotionLabel");
 const emotionBars = document.getElementById("emotionBars");
+const textLabel = document.getElementById("textLabel");
+const faceLabelMini = document.getElementById("faceLabelMini");
 const statusValue = document.getElementById("statusValue");
 const history = document.getElementById("history");
+const cameraButton = document.getElementById("cameraButton");
+const cameraStopButton = document.getElementById("cameraStopButton");
+const video = document.getElementById("video");
+const faceStatus = document.getElementById("faceStatus");
+const faceLabel = document.getElementById("faceLabel");
+const faceBars = document.getElementById("faceBars");
 
 let recognition = null;
 const historyItems = [];
+let faceScores = {};
+let faceInterval = null;
+let modelsReady = false;
+
+const FACE_MODEL_URL = "https://justadudewhohacks.github.io/face-api.js/models";
 
 const emotionColors = {
   joy: "#83f7b0",
@@ -58,7 +71,11 @@ function setupRecognition() {
 }
 
 function updateBars(scores) {
-  emotionBars.innerHTML = "";
+  renderBars(emotionBars, scores);
+}
+
+function renderBars(container, scores) {
+  container.innerHTML = "";
   Object.entries(scores)
     .sort((a, b) => b[1] - a[1])
     .forEach(([label, value]) => {
@@ -73,7 +90,7 @@ function updateBars(scores) {
       meter.appendChild(fill);
       row.appendChild(name);
       row.appendChild(meter);
-      emotionBars.appendChild(row);
+      container.appendChild(row);
     });
 }
 
@@ -107,17 +124,19 @@ async function analyzeText() {
     const response = await fetch("/analyze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text }),
+      body: JSON.stringify({ text, face_scores: faceScores }),
     });
     const data = await response.json();
     if (!response.ok) {
       throw new Error(data.error || "Unknown error");
     }
 
-    emotionLabel.textContent = data.label;
-    updateBars(data.scores);
-    updateVisuals(data.label);
-    updateHistory(data.label, text);
+    emotionLabel.textContent = data.fused_label;
+    updateBars(data.fused_scores);
+    updateVisuals(data.fused_label);
+    textLabel.textContent = data.text_label;
+    faceLabelMini.textContent = data.face_label || "Unavailable";
+    updateHistory(data.fused_label, text);
     statusValue.textContent = "Adaptive mode";
   } catch (error) {
     statusValue.textContent = "Error";
@@ -152,3 +171,110 @@ textInput.addEventListener("keydown", (event) => {
 if (!supportsSpeechRecognition()) {
   statusValue.textContent = "Speech API unavailable";
 }
+
+async function loadFaceModels() {
+  if (modelsReady || !window.faceapi) {
+    return;
+  }
+  faceStatus.textContent = "Loading models";
+  try {
+    await Promise.all([
+      faceapi.nets.tinyFaceDetector.loadFromUri(FACE_MODEL_URL),
+      faceapi.nets.faceExpressionNet.loadFromUri(FACE_MODEL_URL),
+    ]);
+    modelsReady = true;
+    faceStatus.textContent = "Camera ready";
+  } catch (error) {
+    faceStatus.textContent = "Model load failed";
+  }
+}
+
+function mapExpressions(expressions) {
+  const mapped = {
+    anger: (expressions.angry || 0) + (expressions.disgusted || 0),
+    fear: expressions.fearful || 0,
+    joy: expressions.happy || 0,
+    sadness: expressions.sad || 0,
+    surprise: expressions.surprised || 0,
+    neutral: expressions.neutral || 0,
+  };
+  const total = Object.values(mapped).reduce((sum, value) => sum + value, 0) || 1;
+  Object.keys(mapped).forEach((key) => {
+    mapped[key] = Number((mapped[key] / total).toFixed(4));
+  });
+  return mapped;
+}
+
+async function detectFace() {
+  if (!modelsReady || video.readyState < 2) {
+    return;
+  }
+  const detection = await faceapi
+    .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+    .withFaceExpressions();
+  if (!detection) {
+    faceStatus.textContent = "No face detected";
+    faceScores = {};
+    faceLabel.textContent = "Unavailable";
+    faceLabelMini.textContent = "Unavailable";
+    faceBars.innerHTML = "";
+    return;
+  }
+  faceStatus.textContent = "Face detected";
+  faceScores = mapExpressions(detection.expressions);
+  const topLabel = Object.keys(faceScores).reduce((best, label) => {
+    return faceScores[label] > faceScores[best] ? label : best;
+  }, "neutral");
+  faceLabel.textContent = topLabel;
+  faceLabelMini.textContent = topLabel;
+  renderBars(faceBars, faceScores);
+}
+
+async function startCamera() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    faceStatus.textContent = "Camera unavailable";
+    return;
+  }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    video.srcObject = stream;
+    cameraButton.disabled = true;
+    cameraStopButton.disabled = false;
+    faceStatus.textContent = "Starting camera";
+    await loadFaceModels();
+    if (faceInterval) {
+      clearInterval(faceInterval);
+    }
+    faceInterval = setInterval(detectFace, 900);
+  } catch (error) {
+    faceStatus.textContent = "Camera blocked";
+  }
+}
+
+function stopCamera() {
+  if (video.srcObject) {
+    video.srcObject.getTracks().forEach((track) => track.stop());
+    video.srcObject = null;
+  }
+  if (faceInterval) {
+    clearInterval(faceInterval);
+    faceInterval = null;
+  }
+  faceScores = {};
+  faceBars.innerHTML = "";
+  faceLabel.textContent = "Neutral";
+  faceLabelMini.textContent = "Neutral";
+  cameraButton.disabled = false;
+  cameraStopButton.disabled = true;
+  faceStatus.textContent = "Camera idle";
+}
+
+cameraButton.addEventListener("click", () => {
+  if (!window.faceapi) {
+    faceStatus.textContent = "Face API unavailable";
+    return;
+  }
+  startCamera();
+});
+
+cameraStopButton.addEventListener("click", stopCamera);
