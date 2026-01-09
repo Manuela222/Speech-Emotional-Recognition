@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Terms of Use · Neural HCI Console</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+  </head>
+  <body>
+    <div class="noise"></div>
+    <main class="frame terms">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">General Terms of Use</p>
+          <h1>Emotion Recognition Console</h1>
+          <p class="subhead">
+            Please review how this interface works, what it captures, and its
+            limitations before proceeding.
+          </p>
+        </div>
+      </header>
+
+      <section class="terms-card">
+        <h2>What the Interface Does</h2>
+        <p>
+          The console provides a multimodal emotion signal by analyzing typed or
+          spoken text and optional facial expressions. It fuses these signals into a
+          single state to demonstrate adaptive interface behavior.
+        </p>
+
+        <h2>What Is Captured</h2>
+        <ul>
+          <li>Text you type or speech transcripts produced by your browser.</li>
+          <li>Live camera frames processed locally to estimate facial expressions.</li>
+        </ul>
+
+        <h2>Retention and Access</h2>
+        <ul>
+          <li>No audio or video is stored by the server.</li>
+          <li>Text sent to the server is processed in memory and not saved.</li>
+          <li>Only your current browser session can access the data.</li>
+        </ul>
+
+        <h2>Limitations</h2>
+        <ul>
+          <li>Emotion detection is probabilistic and can be inaccurate.</li>
+          <li>Results are not medical or psychological assessments.</li>
+          <li>Lighting, accents, and background noise can reduce accuracy.</li>
+        </ul>
+
+        <div class="terms-actions">
+          <a class="primary link-button" href="/app">I Understand — Continue</a>
+          <button id="refuseButton" class="ghost">Refuse</button>
+        </div>
+        <p id="refuseMessage" class="terms-warning" hidden>
+          You cannot use the interface without accepting the terms.
+        </p>
+      </section>
+    </main>
+    <script>
+      const refuseButton = document.getElementById("refuseButton");
+      const refuseMessage = document.getElementById("refuseMessage");
+      refuseButton.addEventListener("click", () => {
+        refuseMessage.hidden = false;
+      });
+    </script>
+  </body>
+</html>

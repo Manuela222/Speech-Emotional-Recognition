@@ -337,6 +337,55 @@ button:hover:not(:disabled) {
   font-size: 0.9rem;
 }
 
+.frame.terms {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.link-button {
+  text-decoration: none;
+  display: inline-block;
+}
+
+.terms-card {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 22px;
+  padding: 32px;
+  display: grid;
+  gap: 20px;
+  line-height: 1.7;
+}
+
+.terms-card h2 {
+  font-size: 1.2rem;
+  margin-top: 12px;
+}
+
+.terms-card p {
+  color: var(--muted);
+}
+
+.terms-card ul {
+  margin-left: 20px;
+  color: var(--muted);
+  display: grid;
+  gap: 10px;
+}
+
+.terms-actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.terms-warning {
+  margin-top: 12px;
+  color: #ff4d4d;
+  font-weight: 600;
+}
+
 @keyframes pulse {
   0%,
   100% {

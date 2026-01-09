@@ -125,6 +125,11 @@ MODEL = train_model()
 
 
 @app.route("/")
+def terms() -> str:
+    return render_template("terms.html")
+
+
+@app.route("/app")
 def index() -> str:
     return render_template("index.html")
 
